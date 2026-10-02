@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smiling Decor - Calculadora de Frete</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --whatsapp: #25d366;
+            --whatsapp-hover: #20ba5a;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #d1d5db;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+        }
+        h1 {
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row .form-group {
+            flex: 1;
+        }
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .btn-whatsapp {
+            background-color: var(--whatsapp);
+            margin-top: 12px;
+        }
+        .btn-whatsapp:hover {
+            background-color: var(--whatsapp-hover);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #e0e7ff;
+            border-radius: 8px;
+            display: none;
+        }
+        .result h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            color: #312e81;
+            text-align: center;
+        }
+        .result p {
+            margin: 6px 0;
+            font-size: 0.95rem;
+        }
+        .divider {
+            border-top: 1px dashed #cbd5e1;
+            margin: 10px 0;
+        }
+        .loading {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 10px;
+            display: none;
+        }
+        .manual-section {
+            margin-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+        }
+        #manualPanel {
+            display: none;
+            margin-top: 10px;
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        #customCityGroup {
+            display: none;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Smiling Decor - Calculadora de Frete</h1>
+    
+    <div class="form-group">
+        <label for="storeAddress">Endereço da Loja (Origem):</label>
+        <input type="text" id="storeAddress" value="Rua Arlindo Araújo Sobrinho, 107, Curitiba">
+    </div>
+
+    <div class="form-group">
+        <label for="clientWhatsapp">WhatsApp do Cliente (Opcional):</label>
+        <input type="text" id="clientWhatsapp" placeholder="Ex: 41999999999 (com DDD)">
+    </div>
+
+    <div class="row">
+        <div class="form-group" style="flex: 3;">
+            <label for="clientStreet">Rua / Logradouro:</label>
+            <input type="text" id="clientStreet" placeholder="Ex: Rua XV de Novembro">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="clientNumber">Número:</label>
+            <input type="text" id="clientNumber" placeholder="Ex: 1000">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label for="clientNeighborhood">Bairro:</label>
+            <input type="text" id="clientNeighborhood" placeholder="Ex: Guabirotuba">
+        </div>
+        <div class="form-group">
+            <label for="clientCitySelect">Cidade:</label>
+            <select id="clientCitySelect" onchange="verificarCidadeCustomizada()">
+                <option value="Curitiba" selected>Curitiba</option>
+                <option value="São José dos Pinhais">São José dos Pinhais</option>
+                <option value="Araucária">Araucária</option>
+                <option value="Colombo">Colombo</option>
+                <option value="Pinhais">Pinhais</option>
+                <option value="Piraquara">Piraquara</option>
+                <option value="Campo Largo">Campo Largo</option>
+                <option value="Almirante Tamandaré">Almirante Tamandaré</option>
+                <option value="Fazenda Rio Grande">Fazenda Rio Grande</option>
+                <option value="Campina Grande do Sul">Campina Grande do Sul</option>
+                <option value="OUTRO">Outra cidade (Digitar...)</option>
+            </select>
+            
+            <div id="customCityGroup">
+                <input type="text" id="clientCityCustom" placeholder="Digite o nome da cidade">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="costPerKm">Custo por Quilômetro (R$/km):</label>
+        <input type="number" id="costPerKm" value="1.50" step="0.10">
+    </div>
+
+    <button onclick="calcularFreteAutomatico()">Calcular Frete Automático</button>
+    <div id="loading" class="loading">A calcular rota...</div>
+
+    <div id="resultBox" class="result">
+        <h2>Detalhamento do Frete</h2>
+        <p id="distanciaTrecho">Distância de Ida (1 trecho): -- km</p>
+        <div class="divider"></div>
+        <p id="valorEntrega"><b>Entrega (Ida e Volta):</b> R$ 0,00</p>
+        <p id="valorColeta"><b>Coleta (Ida e Volta):</b> R$ 0,00</p>
+        <div class="divider"></div>
+        <p id="valorTotal" style="font-size: 1.1rem; font-weight: bold; color: #1e1b4b; text-align: center;">Total Completo (4 trechos): R$ 0,00</p>
+        
+        <button class="btn-whatsapp" onclick="enviarWhatsApp()">Enviar Orçamento via WhatsApp</button>
+    </div>
+
+    <div class="manual-section">
+        <button class="btn-secondary" onclick="toggleManual()">💡 Inserir Distância Manualmente</button>
+        <div id="manualPanel">
+            <div class="form-group">
+                <label for="manualKm">Distância de Ida (1 trecho em km):</label>
+                <input type="number" id="manualKm" placeholder="Ex: 12.5" step="0.1">
+            </div>
+            <button onclick="calcularFreteManual()">Calcular com Valor Manual</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dadosUltimoCalculo = null;
+
+    function toggleManual() {
+        const panel = document.getElementById('manualPanel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function verificarCidadeCustomizada() {
+        const select = document.getElementById('clientCitySelect');
+        const customGroup = document.getElementById('customCityGroup');
+        if (select.value === 'OUTRO') {
+            customGroup.style.display = 'block';
+            document.getElementById('clientCityCustom').focus();
+        } else {
+            customGroup.style.display = 'none';
+        }
+    }
+
+    async function buscarCoordenadas(enderecoCompleto) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(enderecoCompleto)}&countrycodes=br`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lon: parseFloat(data[0].lon)
+            };
+        }
+        return null;
+    }
+
+    async function calcularFreteAutomatico() {
+        const store = document.getElementById('storeAddress').value;
+        const rua = document.getElementById('clientStreet').value.trim();
+        const numero = document.getElementById('clientNumber').value.trim();
+        const bairro = document.getElementById('clientNeighborhood').value.trim();
+        
+        const selectCidade = document.getElementById('clientCitySelect').value;
+        let cidade = selectCidade;
+        if (selectCidade === 'OUTRO') {
+            cidade = document.getElementById('clientCityCustom').value.trim();
+        }
+
+        const costPerKm = parseFloat(document.getElementById('costPerKm').value);
+        const loading = document.getElementById('loading');
+        const resultBox = document.getElementById('resultBox');
+
+        if (!rua) {
+            alert('Por favor, digite pelo menos a rua do cliente.');
+            return;
+        }
+
+        loading.style.display = 'block';
+        resultBox.style.display = 'none';
+
+        try {
+            const origemCoords = await buscarCoordenadas(store);
+            if (!origemCoords) throw new Error('Endereço da loja de origem não encontrado.');
+
+            // Tentativa 1: Endereço completo (com número)
+            let partesDestino = [rua];
+            if (numero) partesDestino.push(numero);
+            if (bairro) partesDestino.push(bairro);
+            if (cidade) partesDestino.push(cidade);
+            partesDestino.push("Paraná");
+            
+            let destinoCoords = await buscarCoordenadas(partesDestino.join(', '));
+
+            // Tentativa 2: Se falhar com o número, tenta achar apenas a rua + bairro + cidade (sem o número exato)
+            if (!destinoCoords) {
+                let partesAlternativas = [rua];
+                if (bairro) partesAlternativas.push(bairro);
+                if (cidade) partesAlternativas.push(cidade);
+                partesAlternativas.push("Paraná");
+                destinoCoords = await buscarCoordenadas(partesAlternativas.join(', '));
+            }
+
+            if (!destinoCoords) {
+                throw new Error('Endereço não localizado no mapa.');
+            }
+
+            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origemCoords.lon},${origemCoords.lat};${destinoCoords.lon},${destinoCoords.lat}?overview=false`;
+            
+            const rotaResponse = await fetch(osrmUrl);
+            const rotaData = await rotaResponse.json();
+
+            if (rotaData.code !== 'Ok' || !rotaData.routes || rotaData.routes.length === 0) {
+                throw new Error('Não foi possível calcular uma rota de carro para este endereço.');
+            }
+
+            const distanciaIdaKm = rotaData.routes[0].distance / 1000;
+            processarResultados(distanciaIdaKm, costPerKm);
+
+        } catch (error) {
+            alert(error.message + '\n\nDica: Verifique se o nome da rua e da cidade estão corretos, ou utilize a opção "Inserir Distância Manualmente" logo abaixo.');
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    function calcularFreteManual() {
+        const manualKm = parseFloat(document.getElementById('manualKm').value);
+        const costPerKm = parseFloat(document.getElementById('costPerKm').value);
+
+        if (isNaN(manualKm) || manualKm <= 0) {
+            alert('Por favor, insira um valor válido de quilômetros.');
+            return;
+        }
+
+        processarResultados(manualKm, costPerKm);
+    }
+
+    function processarResultados(distanciaIdaKm, costPerKm) {
+        const kmEntrega = distanciaIdaKm * 2;
+        const valorEntrega = kmEntrega * costPerKm;
+
+        const kmColeta = distanciaIdaKm * 2;
+        const valorColeta = kmColeta * costPerKm;
+
+        const valorTotal = valorEntrega + valorColeta;
+
+        dadosUltimoCalculo = {
+            valorEntrega,
+            valorColeta,
+            valorTotal
+        };
+
+        document.getElementById('distanciaTrecho').innerText = `Distância de Ida (1 trecho): ${distanciaIdaKm.toFixed(2)} km`;
+        document.getElementById('valorEntrega').innerHTML = `<b>Entrega (Ida e Volta):</b> R$ ${valorEntrega.toFixed(2).replace('.', ',')}`;
+        document.getElementById('valorColeta').innerHTML = `<b>Coleta (Ida e Volta):</b> R$ ${valorColeta.toFixed(2).replace('.', ',')}`;
+        document.getElementById('valorTotal').innerText = `Total Completo (4 trechos): R$ ${valorTotal.toFixed(2).replace('.', ',')}`;
+        document.getElementById('resultBox').style.display = 'block';
+    }
+
+    function enviarWhatsApp() {
+        if (!dadosUltimoCalculo) return;
+
+        const whatsappInput = document.getElementById('clientWhatsapp').value.trim();
+        let numeroFormatado = whatsappInput.replace(/\D/g, '');
+        
+        if (numeroFormatado && !numeroFormatado.startsWith('55')) {
+            numeroFormatado = '55' + numeroFormatado;
+        }
+
+        const msg = `Olá! Segue o orçamento de frete da Smiling Decor:\n\n` +
+            `- Entrega (Ida e Volta): R$ ${dadosUltimoCalculo.valorEntrega.toFixed(2).replace('.', ',')}\n` +
+            `- Coleta (Ida e Volta): R$ ${dadosUltimoCalculo.valorColeta.toFixed(2).replace('.', ',')}\n\n` +
+            `Total Completo (Entrega + Coleta): R$ ${dadosUltimoCalculo.valorTotal.toFixed(2).replace('.', ',')}`;
+
+        const url = numeroFormatado 
+            ? `https://wa.me/${numeroFormatado}?text=${encodeURIComponent(msg)}`
+            : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+        window.open(url, '_blank');
+    }
+</script>
+
+</body>
+</html>
